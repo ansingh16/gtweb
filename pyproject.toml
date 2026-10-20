@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gtweb"
+version = "1.0.0"
+description = "Mock cosmic webs with a known filament network, for testing filament finders"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [{name = "Ankit Singh"}]
+requires-python = ">=3.9"
+dependencies = ["numpy>=1.23", "scipy>=1.9"]
+keywords = ["cosmology", "cosmic web", "filaments", "large-scale structure", "benchmark", "DisPerSE"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Topic :: Scientific/Engineering :: Astronomy",
+]
+
+[project.optional-dependencies]
+notebooks = ["matplotlib>=3.5", "jupyter"]
+fast = ["numba>=0.57"]
+test = ["pytest"]
+
+[project.urls]
+Homepage = "https://github.com/ansingh16/gtweb"
+
+[tool.setuptools]
+packages = ["gtweb"]
+
+[tool.setuptools.package-data]
+gtweb = ["gtweb.mplstyle"]
