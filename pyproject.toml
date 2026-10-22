@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gtweb"
-version = "1.0.0"
+version = "1.0.1"
 description = "Mock cosmic webs with a known filament network, for testing filament finders"
 readme = "README.md"
 license = {text = "MIT"}

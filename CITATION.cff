@@ -6,7 +6,7 @@ authors:
   - family-names: Singh
     given-names: Ankit
     orcid: "https://orcid.org/0000-0001-5427-4515"
-version: 1.0.0
-date-released: 2026-10-20
+version: 1.0.1
+date-released: 2026-10-22
 license: MIT
 repository-code: "https://github.com/ansingh16/gtweb"

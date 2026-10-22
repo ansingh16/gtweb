@@ -31,7 +31,7 @@ from .ic import gaussian_psi1, za_positions
 from .particles import halo_catalogue
 from .generate import generate_mock, generate_from_ic
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 __all__ = [
     "generate_mock", "generate_from_ic", "gaussian_psi1", "za_positions",
