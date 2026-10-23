@@ -21,7 +21,8 @@ with a realistic density field in which the spine of every filament is fixed by 
   function of how faint a filament is.
 
 The mock was introduced to benchmark density inputs for the DisPerSE filament finder
-(Singh et al., in preparation); the defaults reproduce that paper's construction.
+(Singh et al., in preparation); the defaults reproduce that paper's construction. To rebuild that
+paper's truth exactly, use version 1.0.0 (see [Versions](#versions)).
 
 ## Install
 
@@ -164,6 +165,21 @@ pytest tests
 
 The tests generate a small mock (40 Mpc/h, 48³ particles) and check the initial power spectrum,
 determinism, the geometry of the truth, that the mass sits on the web, and the scorer.
+
+## Versions
+
+* **1.0.0** builds the skeleton exactly as in Singh et al. (in preparation): run on that paper's void
+  geometry it reproduces its truth file bit for bit (5842 filaments, 2968 nodes). Install it with
+  `pip install git+https://github.com/ansingh16/gtweb.git@v1.0.0`.
+* **1.0.1** corrects the skeleton builder (see [CHANGELOG.md](CHANGELOG.md)). On the same geometry it
+  keeps every filament of 1.0.0 and adds 94 short ones that 1.0.0 dropped: median length 0.16 Mpc/h,
+  73 shorter than 0.5 Mpc/h, 0.14 per cent of the total filament length. Re-scoring that paper's
+  benchmark against the 1.0.1 truth changes completeness by at most 0.004 and leaves the purity,
+  node recovery, calibrated thresholds and ranking of the density inputs unchanged.
+  In smaller boxes (where cells are large compared with the box) 1.0.0 could also create a few
+  spurious edges near the box faces and drop long edges; 1.0.1 removes both.
+
+Use 1.0.1 or later for new work.
 
 ## Citation
 
