@@ -20,9 +20,10 @@ every node is provably exact and keeps all edges (`max_len` now defaults to no c
 the first defect applied: 1.0.1 keeps all 5842 filaments of 1.0.0 and adds 94 short ones (0.14 per cent of the
 filament length). In the 50 Mpc/h notebook mock the filament count goes from 854 to 860 and all nodes now have
 degree 4 (93 per cent before). The particle field is unchanged; only the truth labels differ.
+Singh et al. (in preparation) use the 1.0.1 truth (README updated 2026-10-26).
 
 Also: notebook 02 shows the filaments as plane piercings plus a projected slab.
 
 ## 1.0.0 (2026-10-20)
 
-First release. Reproduces the truth of Singh et al. (in preparation) exactly.
+First release. Its skeleton builder drops some short edges (fixed in 1.0.1).
