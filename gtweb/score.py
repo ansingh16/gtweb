@@ -19,6 +19,8 @@ Ground-truth spines are the list of (6, 3) polylines in `ground_truth_spines.npz
 import numpy as np
 from scipy.spatial import cKDTree
 
+from .periodic import wrap
+
 
 def _densify_polylines(polylines, box, step):
     """Resample each polyline to <= `step` spacing (min-image on the periodic box); return (P,3) points."""
@@ -26,17 +28,17 @@ def _densify_polylines(polylines, box, step):
     for s in polylines:
         p = np.asarray(s, float)
         if len(p) < 2:
-            out.append(p % box); continue
+            out.append(wrap(p, box)); continue
         d = np.diff(p, axis=0)
         d -= box * np.round(d / box)                       # min-image steps (spines may be stored wrapped)
         seglen = np.linalg.norm(d, axis=1)
-        acc = [p[0:1] % box]
+        acc = [wrap(p[0:1], box)]
         cur = p[0].copy()
         for k in range(len(d)):
             n = max(1, int(np.ceil(seglen[k] / step)))
             ts = np.arange(1, n + 1) / n
             pts = cur[None, :] + ts[:, None] * d[k][None, :]
-            acc.append(pts % box)
+            acc.append(wrap(pts, box))
             cur = cur + d[k]
         out.append(np.vstack(acc))
     return np.vstack(out) if out else np.zeros((0, 3))
@@ -45,7 +47,7 @@ def _densify_polylines(polylines, box, step):
 def _as_points(skeleton, box, step):
     """Coerce a finder skeleton (list of polylines OR (N,3) point cloud) to (N,3) sample points."""
     if isinstance(skeleton, np.ndarray) and skeleton.ndim == 2 and skeleton.shape[1] == 3:
-        return skeleton.astype(float) % box
+        return wrap(skeleton.astype(float), box)
     # otherwise treat as a list/sequence of polylines
     return _densify_polylines(list(skeleton), box, step)
 

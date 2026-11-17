@@ -23,6 +23,7 @@ import numpy as np
 from scipy.ndimage import gaussian_filter, map_coordinates
 
 from . import cosmology as cosmo
+from .periodic import wrap
 
 
 def linear_velocity_field(pos, box, ngrid=128, smooth=1.0, f=None, H0=100.0, z=0.0):
@@ -53,7 +54,7 @@ def linear_velocity_field(pos, box, ngrid=128, smooth=1.0, f=None, H0=100.0, z=0
 
     # overdensity on the mesh
     e = np.linspace(0.0, box, ngrid + 1)
-    rho, _ = np.histogramdd(pos % box, bins=(e, e, e))
+    rho, _ = np.histogramdd(wrap(pos, box), bins=(e, e, e))
     if smooth > 0:
         rho = gaussian_filter(rho, smooth / cell, mode='wrap')
     delta = rho / rho.mean() - 1.0
@@ -87,7 +88,7 @@ def sample_velocity(field, points, box=None):
     ng = int(field['ngrid'])
     cell = box / ng
     # cube node m is the density cell centred at (m+0.5)*cell, so index = x/cell - 0.5
-    coords = (np.asarray(points, float) % box).T / cell - 0.5
+    coords = wrap(np.asarray(points, float), box).T / cell - 0.5
     v = [map_coordinates(np.asarray(field[c]), coords, order=1, mode='grid-wrap')
          for c in ('vx', 'vy', 'vz')]
     return np.stack(v, axis=1)

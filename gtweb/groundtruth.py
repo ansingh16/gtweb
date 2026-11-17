@@ -13,6 +13,7 @@ from scipy.spatial import cKDTree
 from scipy.ndimage import gaussian_filter, map_coordinates
 
 from . import cosmology as cosmo
+from .periodic import wrap
 
 CALIB_APERTURE = 1.5
 R_CYL = 1.0
@@ -24,11 +25,11 @@ def spine_overdensity(spines, pos, m_p, box, ngrid=VOL_NGRID, smooth=VOL_SMOOTH)
     rho_bar = cosmo.Om * cosmo.RHO_CRIT
     cell = box / ngrid
     e = np.linspace(0, box, ngrid + 1)
-    H, _ = np.histogramdd(pos % box, bins=(e, e, e))
+    H, _ = np.histogramdd(wrap(pos, box), bins=(e, e, e))
     rho = gaussian_filter(H, smooth / cell, mode='wrap') * m_p / cell ** 3
     pts, fid = [], []
     for i, s in enumerate(spines):
-        pts.append(np.asarray(s)[:, :3] % box); fid.append(np.full(len(s), i))
+        pts.append(wrap(np.asarray(s)[:, :3], box)); fid.append(np.full(len(s), i))
     pts = np.vstack(pts); fid = np.concatenate(fid)
     vals = map_coordinates(rho, (pts.T / cell), order=1, mode='grid-wrap') / rho_bar
     o = np.zeros(len(spines)); np.add.at(o, fid, vals)
@@ -57,9 +58,9 @@ def assemble_ground_truth(web, nuclei, weights, pos, box):
     and the particle field.  Returns (gt, nodes_cat, walls_cat, web_geom) dicts ready to np.savez."""
     spines = web['spines']
     K = len(spines)
-    nodes = np.asarray(web['nodes'], float) % box
+    nodes = wrap(np.asarray(web['nodes'], float), box)
     fl = np.asarray(web['fil_len'], np.float32)
-    pos = np.asarray(pos).astype(np.float64) % box
+    pos = wrap(np.asarray(pos).astype(np.float64), box)
     m_p = cosmo.Om * cosmo.RHO_CRIT * box ** 3 / len(pos)
     lambda0 = cosmo.Om * cosmo.RHO_CRIT * np.pi * R_CYL ** 2
 
@@ -73,7 +74,7 @@ def assemble_ground_truth(web, nuclei, weights, pos, box):
     for i, s in enumerate(spines):
         p = np.asarray(s, float)
         dd = np.diff(p, axis=0); dd -= box * np.round(dd / box)
-        a = p[0] % box
+        a = wrap(p[0], box)
         seg3[i, :3] = a
         seg3[i, 3:] = a + dd.sum(0)
     lam, _ = filament_linear_density(seg3, pos, m_p, box, r_cyl=R_CYL)

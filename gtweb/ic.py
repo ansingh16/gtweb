@@ -20,6 +20,7 @@ import numpy as np
 from scipy.fft import rfftn, irfftn
 
 from . import cosmology as cosmo
+from .periodic import wrap
 
 
 def _kgrid(n, box):
@@ -69,7 +70,7 @@ def za_positions(psi1, box):
     n = P.shape[1]
     g = (np.arange(n) + 0.5) * (box / n)
     q = np.stack(np.meshgrid(g, g, g, indexing='ij'), axis=0)
-    return ((q + P).reshape(3, -1).T % box)
+    return wrap((q + P).reshape(3, -1).T, box)
 
 
 def measure_pk(delta, box, nbins=30):

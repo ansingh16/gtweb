@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased
+
+**Periodic wrapping made exact** (new `gtweb/periodic.py`). Coordinates were wrapped with `x % box`, which
+returns `box` itself for a tiny negative x (`-1e-17 % 100.0 == 100.0`; in float32 for x down to about -4e-6).
+`cKDTree(..., boxsize=box)` rejects such a point, so `score_finder` crashed on a skeleton with a vertex just below
+zero, and `np.histogramdd` put such a particle in the last cell instead of the first (`linear_velocity_field`,
+`spine_overdensity`). Every coordinate wrap now goes through `periodic.wrap`, which maps that value to 0. The CIC
+deposits were already correct (their cell indices are wrapped) and are unchanged.
+
+**Effect.** None away from the edge case: a mock generated before and after (40 Mpc/h, 48³, seed 0) is
+bit-identical in all 518 output arrays, so the 1.0.1 truth and particle fields are unchanged.
+`tests/test_periodic.py` covers the helper, the scorer, the velocity field and the CIC.
+
 ## 1.0.1 (2026-10-22)
 
 **Skeleton builder corrected** (`gtweb/web.py`). The truth network is now the exact periodic power diagram of
