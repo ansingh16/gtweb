@@ -4,8 +4,9 @@ ground-truth schema and measure the per-filament / per-node physical dials.
 
 Dials (measured on the particle field so a user can bin filaments by strength):
   * per-node peak     = particle mass within CALIB_APERTURE (1.5 Mpc/h) of each node.
-  * per-edge delta_vol = volumetric overdensity rho_core/rho_bar sampled along the spine
-                         (256^3 grid smoothed 0.5 Mpc/h).  PRIMARY dial (filament_target_contrast).
+  * per-edge delta_vol = volumetric overdensity rho_core/rho_bar averaged along the spine line
+                         (256^3 grid smoothed 0.5 Mpc/h, equal arc-length samples every 0.1 Mpc/h).
+                         PRIMARY dial (filament_target_contrast).
   * per-edge lambda   = linear mass density in an R_cyl = 1 Mpc/h cylinder.  SECONDARY (legacy) dial.
 """
 import numpy as np
@@ -13,15 +14,22 @@ from scipy.spatial import cKDTree
 from scipy.ndimage import gaussian_filter, map_coordinates
 
 from . import cosmology as cosmo
-from .periodic import wrap
+from .periodic import wrap, sample_polyline
 
 CALIB_APERTURE = 1.5
 R_CYL = 1.0
 VOL_NGRID, VOL_SMOOTH = 256, 0.5
+SPINE_STEP = 0.1                 # Mpc/h, arc-length step of the along-spine average
 
 
-def spine_overdensity(spines, pos, m_p, box, ngrid=VOL_NGRID, smooth=VOL_SMOOTH):
-    """delta_vol = rho_core/rho_bar averaged ALONG each spine."""
+def spine_overdensity(spines, pos, m_p, box, ngrid=VOL_NGRID, smooth=VOL_SMOOTH, step=SPINE_STEP):
+    """delta_vol = rho_core/rho_bar averaged along each spine line, per unit length.
+
+    The density is a histogram on an `ngrid`^3 grid, so element i holds the value at the cell centre
+    (i + 0.5) * cell and a point x is read at index x / cell - 0.5.  The average is over equal arc-length samples
+    of the spine line (`step` apart), not over its stored vertices.  A spine of zero length falls back to its
+    stored vertices.  (1.1.0: before, the lookup used x / cell, reading the density half a cell further along each
+    axis, and averaged over the stored vertices, so each node end weighed 1/6.)"""
     rho_bar = cosmo.Om * cosmo.RHO_CRIT
     cell = box / ngrid
     e = np.linspace(0, box, ngrid + 1)
@@ -29,9 +37,12 @@ def spine_overdensity(spines, pos, m_p, box, ngrid=VOL_NGRID, smooth=VOL_SMOOTH)
     rho = gaussian_filter(H, smooth / cell, mode='wrap') * m_p / cell ** 3
     pts, fid = [], []
     for i, s in enumerate(spines):
-        pts.append(wrap(np.asarray(s)[:, :3], box)); fid.append(np.full(len(s), i))
+        p = np.asarray(s, float)[:, :3]
+        q = sample_polyline(p, step, box)
+        q = q if len(q) else wrap(p, box)
+        pts.append(q); fid.append(np.full(len(q), i))
     pts = np.vstack(pts); fid = np.concatenate(fid)
-    vals = map_coordinates(rho, (pts.T / cell), order=1, mode='grid-wrap') / rho_bar
+    vals = map_coordinates(rho, pts.T / cell - 0.5, order=1, mode='grid-wrap') / rho_bar
     o = np.zeros(len(spines)); np.add.at(o, fid, vals)
     o /= np.maximum(np.bincount(fid, minlength=len(spines)), 1)
     return o.astype(np.float32)

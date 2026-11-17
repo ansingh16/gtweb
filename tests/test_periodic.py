@@ -4,11 +4,36 @@ import numpy as np
 import pytest
 
 import gtweb
-from gtweb.periodic import wrap
+from gtweb.periodic import wrap, polyline_length, sample_polyline
 from gtweb import geometry
 
 
 BOX = 100.0
+
+
+def test_polyline_length_uses_minimum_image():
+    p = np.array([[99.0, 5.0, 5.0], [1.0, 5.0, 5.0], [1.0, 8.0, 9.0]])      # 2 across the boundary, then 5
+    assert polyline_length(p, BOX) == pytest.approx(7.0)
+    assert polyline_length(p[:1], BOX) == 0.0
+
+
+def test_sample_polyline_equal_pieces_midpoints():
+    p = np.array([[10.0, 20.0, 30.0], [13.0, 20.0, 30.0], [13.0, 24.0, 30.0]])  # L = 7
+    q = sample_polyline(p, 0.1, BOX)
+    assert len(q) == 70                                       # ceil(7 / 0.1)
+    np.testing.assert_allclose(q[0], [10.05, 20.0, 30.0])     # first piece's midpoint
+    np.testing.assert_allclose(q[-1], [13.0, 23.95, 30.0])
+    steps = np.linalg.norm(np.diff(q, axis=0), axis=1)
+    assert np.all(steps <= 0.1 + 1e-12)
+    assert len(sample_polyline(p, 2.0, BOX)) == 4             # ceil(7 / 2), last piece shorter than step -> n pieces
+    assert len(sample_polyline(np.array([p[0], p[0]]), 0.1, BOX)) == 0
+
+
+def test_sample_polyline_across_the_boundary():
+    p = np.array([[99.5, 50.0, 50.0], [100.5, 50.0, 50.0]])   # crosses x = 100 (stored unwrapped)
+    q = sample_polyline(p, 0.25, BOX)
+    assert np.all((q >= 0) & (q < BOX))
+    np.testing.assert_allclose(np.sort(q[:, 0]), [0.125, 0.375, 99.625, 99.875])
 
 
 def test_numpy_edge_case_exists():
