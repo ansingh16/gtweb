@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.1.0 (2026-11-17)
+
+**Filament contrast measured at the right place and along the whole spine** (`groundtruth.spine_overdensity`, the
+`filament_target_contrast` / `filament_contrasts` / `filament_target_overdensity` dial). Two changes:
+- the density grid is a histogram, so element i holds the value at the cell centre (i + 0.5) * cell; it was read at
+  index x / cell, i.e. half a cell further along each axis (0.195 Mpc/h per axis on the default 256³ grid of a
+  100 Mpc/h box). It is now read at x / cell - 0.5;
+- the average was over the spine's stored vertices (6 per spine, so each node end weighed 1/6); it is now over
+  equal arc-length samples of the spine line, 0.1 Mpc/h apart (new `periodic.sample_polyline`).
+
+**Effect.** The filament network, particles, node and halo catalogues are unchanged; only the contrast dial
+changes. On the 100 Mpc/h mock of Singh et al. (in preparation), the median contrast goes from 16.632 to 14.321,
+per-filament new/old has median 0.895 (5-95 per cent range 0.522-1.276), the ranking is nearly unchanged
+(Spearman 0.969), and 5923 instead of 5935 of the 5936 filaments are overdense. 1.1.0 reproduces that paper's
+contrast values exactly (all 5936 identical in float32): the paper uses the corrected estimator.
+`tests/test_groundtruth.py` checks both changes with known answers.
+
 ## 1.0.2 (2026-11-17)
 
 **Periodic wrapping made exact** (new `gtweb/periodic.py`). Coordinates were wrapped with `x % box`, which

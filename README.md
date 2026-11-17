@@ -21,8 +21,9 @@ with a realistic density field in which the spine of every filament is fixed by 
   function of how faint a filament is.
 
 The mock was introduced to benchmark density inputs for the DisPerSE filament finder
-(Singh et al., in preparation); the defaults reproduce that paper's construction. That paper's truth
-is built with version 1.0.1 (see [Versions](#versions)).
+(Singh et al., in preparation); the defaults reproduce that paper's construction. That paper's filament network
+is built with version 1.0.1 and its filament contrasts are measured as in 1.1.0; version 1.1.0 reproduces both
+(see [Versions](#versions)).
 
 ## Install
 
@@ -184,6 +185,10 @@ determinism, the geometry of the truth, that the mass sits on the web, and the s
 
 ## Versions
 
+* **1.1.0** corrects the filament contrast dial (`filament_target_contrast`): the density is read at the right
+  place (it was half a grid cell off) and averaged along the whole spine line (it was averaged over the six stored
+  vertices). The network and particles are unchanged. On the mock of Singh et al. (in preparation) it gives that
+  paper's contrast values exactly. See [CHANGELOG.md](CHANGELOG.md).
 * **1.0.2** fixes an edge case in periodic wrapping (a coordinate just below zero was wrapped to the box size,
   which crashed the scorer) and adds the uv project files. It gives the same outputs as 1.0.1 away from that
   edge case, including the truth of Singh et al. (in preparation). See [CHANGELOG.md](CHANGELOG.md).
@@ -198,7 +203,7 @@ determinism, the geometry of the truth, that the mass sits on the web, and the s
   In smaller boxes (where cells are large compared with the box) 1.0.0 could also create a few
   spurious edges near the box faces and drop long edges.
 
-Use 1.0.2 for new work.
+Use 1.1.0 for new work.
 
 ## Citation
 
