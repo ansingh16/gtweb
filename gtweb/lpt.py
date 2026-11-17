@@ -31,6 +31,7 @@ from scipy.fft import rfftn, irfftn
 from scipy.ndimage import gaussian_filter
 
 from . import cosmology as cosmo
+from .periodic import wrap
 
 
 def load_psi1(path):
@@ -128,7 +129,7 @@ def lpt_positions(psi1s, psi2, box):
     """2LPT Eulerian positions q + Psi1_s + Psi2 (grid-order, wrapped).  Returns (n^3, 3)."""
     P1 = np.asarray(psi1s); P2 = np.asarray(psi2); n = P1.shape[1]
     q = _lagrangian_grid(n, box)
-    return ((q + P1 + P2).reshape(3, -1).T % box)
+    return wrap((q + P1 + P2).reshape(3, -1).T, box)
 
 
 def lpt_velocity_field(psi1s, psi2, box, ngrid=128, smooth=1.0, f1=None, f2=None, H0=100.0, z=0.0):
@@ -144,7 +145,7 @@ def lpt_velocity_field(psi1s, psi2, box, ngrid=128, smooth=1.0, f1=None, f2=None
         f2 = cosmo.growth_rate_f2()
 
     q = _lagrangian_grid(n, box)
-    pos = ((q + P1 + P2).reshape(3, -1).T % box)              # 2LPT particle positions
+    pos = wrap((q + P1 + P2).reshape(3, -1).T, box)           # 2LPT particle positions
     vsite = (H0 * (f1 * P1 + f2 * P2)).reshape(3, -1).T       # per-site velocity (km/s)
     del P1, P2, q
 

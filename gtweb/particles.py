@@ -21,6 +21,7 @@ from scipy.spatial import cKDTree
 from scipy.ndimage import gaussian_filter, maximum_filter
 
 from . import cosmology as cosmo
+from .periodic import wrap
 
 # cascade constants
 KPOW = 64                # Euclidean-nearest candidates refined to the power-nearest cell (broad weights need >8)
@@ -114,7 +115,7 @@ def cascade_displace(part, nuclei, nbr_off, T, box, rng, scatter, nuc_w, nbr_w, 
         out = c + v
         if scatter > 0:
             out = out + rng.normal(0.0, scatter, out.shape)
-        pos[lo:hi] = out % box
+        pos[lo:hi] = wrap(out, box)
         stage[lo:hi] = st
     return pos, stage
 
@@ -122,7 +123,7 @@ def cascade_displace(part, nuclei, nbr_off, T, box, rng, scatter, nuc_w, nbr_w, 
 def cascade_onto_geometry(ic_positions, nuclei, weights, void_radii, box, seed=0,
                           T_base=0.98, T_exp=0.5, scatter=0.10, workers=-1, verbose=False):
     """Wrapper: cascade the IC particles onto the Laguerre geometry.  Returns (positions, stage)."""
-    nuc = np.asarray(nuclei) % box
+    nuc = wrap(np.asarray(nuclei), box)
     w = np.asarray(weights)
     R = np.asarray(void_radii)
     N = len(nuc)
@@ -132,7 +133,7 @@ def cascade_onto_geometry(ic_positions, nuclei, weights, void_radii, box, seed=0
     nbr_idx = nidx[:, 1:]
     nbr_off = nuc[nbr_idx] - nuc[:, None, :]; nbr_off -= box * np.round(nbr_off / box)
     nbr_w = w[nbr_idx]
-    part = np.asarray(ic_positions).astype(np.float64) % box
+    part = wrap(np.asarray(ic_positions).astype(np.float64), box)
     rng = np.random.default_rng(1000 + seed)
     pos, stage = cascade_displace(part, nuc, nbr_off, T_base, box, rng, scatter,
                                   nuc_w=w, nbr_w=nbr_w, Tvec=Tvec, workers=workers)
@@ -192,7 +193,7 @@ def nfw_particles(centers, n_i, rvir, conc, rng, box):
     cost = rng.uniform(-1.0, 1.0, N); sint = np.sqrt(np.maximum(0.0, 1.0 - cost * cost))
     phi = rng.uniform(0.0, 2.0 * np.pi, N)
     off = np.column_stack([r * sint * np.cos(phi), r * sint * np.sin(phi), r * cost])
-    return (cen + off) % box
+    return wrap(cen + off, box)
 
 
 def _halo_centres(pos, stage, box, rng, grid=512, peak_smooth=0.3, m_min_part=20.0, diffuse_frac=0.4):
@@ -244,7 +245,7 @@ def halo_catalogue(pos, stage, box, seed=0, grid=512, peak_smooth=0.3, m_min_par
     NFW particles.  Returns dict(positions, mass, n_particles, box_size, m_particle, min_npart).
     Deterministic (seed).  Note: apply the same per-stage thickness to `pos` first if the field
     was built with it (see generate.generate_from_ic)."""
-    pos = np.asarray(pos).astype(np.float64) % box
+    pos = wrap(np.asarray(pos).astype(np.float64), box)
     stage = np.asarray(stage)
     m_p = cosmo.RHO_M * box ** 3 / len(pos)
     rng = np.random.default_rng(5000 + seed)
@@ -260,7 +261,7 @@ def halo_model_population(pos, stage, box, seed=0, grid=512, peak_smooth=0.3,
     `diffuse_frac` of filaments are kept in place.  Returns (out_pos, out_stage) with len == len(pos).
     With `return_catalogue=True` also returns the halo catalogue dict (see `halo_catalogue`) as a third
     element -- the SAME centres/masses, at no extra cost."""
-    pos = np.asarray(pos).astype(np.float64) % box
+    pos = wrap(np.asarray(pos).astype(np.float64), box)
     stage = np.asarray(stage)
     N = len(pos)
     m_p = cosmo.RHO_M * box ** 3 / N

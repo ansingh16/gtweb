@@ -17,6 +17,8 @@ construction, documented in the paper.
 import numpy as np
 from scipy.spatial import ConvexHull
 
+from .periodic import wrap
+
 
 def regular_tetra(pts, wts):
     """Lower convex hull of (q, |q|^2 - w) -> regular-triangulation tetrahedra."""
@@ -125,7 +127,7 @@ def build_web(hull, low, pts, wts, centres, box, resample, max_len, base_id, shi
             tri = pts[shared]
             area = 0.5 * np.linalg.norm(np.cross(tri[1] - tri[0], tri[2] - tri[0]))
             ts = np.linspace(0, 1, resample)
-            sp = (cf[None, :] + ts[:, None] * (cg - cf)[None, :]) % box
+            sp = wrap(cf[None, :] + ts[:, None] * (cg - cf)[None, :], box)
             edges.append((i, j)); spines.append(sp.astype(np.float32)); fil_len.append(L)
             fil_area.append(area)
             fil_rf.append(np.clip(0.12 * L, 0.3, 1.2))
@@ -140,7 +142,7 @@ def build_web_from_geometry(nuclei, weights, box, margin=None, max_len=None, res
 
     `margin` is the starting width of the periodic-image shell (default 0.32 box); it is widened until
     every node is provably exact.  `max_len` optionally drops edges longer than it (default: keep all)."""
-    c = np.asarray(nuclei, float) % box
+    c = wrap(np.asarray(nuclei, float), box)
     w = np.asarray(weights, float)
     margin = 0.32 * box if margin is None else float(margin)
     for _ in range(6):

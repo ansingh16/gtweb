@@ -17,6 +17,8 @@ import numpy as np
 from scipy.ndimage import gaussian_filter, minimum_filter
 from scipy.spatial import cKDTree
 
+from .periodic import wrap
+
 try:                                    # optional numba acceleration for the CIC loop
     from numba import njit
     _HAVE_NUMBA = True
@@ -75,7 +77,7 @@ def cic_density(positions, grid_size, box_size):
 
 def ic_one_plus_delta(ic_positions, grid, box):
     """1 + delta of the (growth-scaled) IC particle field on a `grid`^3 CIC mesh."""
-    rho = cic_density(np.asarray(ic_positions) % box, grid, box)
+    rho = cic_density(wrap(np.asarray(ic_positions), box), grid, box)
     return rho / rho.mean()
 
 
@@ -142,7 +144,7 @@ def power_cells(nuc, w, grid, box, k):
     ax = (np.arange(grid) + 0.5) * cell
     X, Y, Z = np.meshgrid(ax, ax, ax, indexing='ij')
     pts = np.column_stack([X.ravel(), Y.ravel(), Z.ravel()])
-    t = cKDTree(nuc % box, boxsize=box)
+    t = cKDTree(wrap(nuc, box), boxsize=box)
     kk = min(k, len(nuc))
     d, idx = t.query(pts, k=kk, workers=-1)
     if kk == 1:

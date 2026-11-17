@@ -33,6 +33,7 @@ import numpy as np
 from pathlib import Path
 
 from . import geometry, web, particles, groundtruth, io, velocity, lpt, ic
+from .periodic import wrap
 
 # reference cell sizes of the paper's mock (100 Mpc/h box), in Mpc/h
 _CIC_CELL = 100.0 / 128      # IC density grid for the void search
@@ -89,7 +90,7 @@ def _run(ic_pos, box, out_dir, psi1=None, seed=0, grid=None, rho_v=0.2, smooth=1
     if sigma_wall > 0 or sigma_fil > 0:
         rng_t = np.random.default_rng(2000 + seed)
         extra = np.zeros(len(pos)); extra[stage == 1] = sigma_wall; extra[stage == 2] = sigma_fil
-        pos = (pos + rng_t.normal(0.0, 1.0, pos.shape) * extra[:, None]) % box
+        pos = wrap(pos + rng_t.normal(0.0, 1.0, pos.shape) * extra[:, None], box)
 
     n_halos = None
     if halos:
