@@ -7,3 +7,4 @@ dist/
 # mock outputs (regenerate with the notebooks)
 notebooks/mock_*/
 *.npz
+.venv/
