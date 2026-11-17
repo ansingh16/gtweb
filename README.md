@@ -162,6 +162,11 @@ volume.
 * **One mock is one realisation.** Use several seeds and report the scatter.
 * **Match your data.** Subsample the particles to the tracer density you care about, or use the
   halo catalogue as a discrete tracer.
+* **The haloes are an easy tracer.** They form from particles that have already collapsed onto the
+  filaments, so most sit almost on a true spine: in the paper's mock, 63 per cent of the haloes lie
+  within 0.25 Mpc/h of one. Joining neighbouring haloes, for example with a pruned minimum spanning
+  tree, then recovers much of the network. To test a finder meant for sparse galaxies, which scatter
+  around filaments, compare it with such a baseline or first displace the haloes off the web.
 * **Purity has a floor.** The diffuse matter is not tied to the tessellation and forms some faint
   structure of its own away from the true spines. In the paper's mock, 80 per cent of the overdense
   mass lies within 1.5 Mpc/h of a true spine. A finder that traces the rest is charged with false
