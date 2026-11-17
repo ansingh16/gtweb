@@ -184,6 +184,9 @@ determinism, the geometry of the truth, that the mass sits on the web, and the s
 
 ## Versions
 
+* **1.0.2** fixes an edge case in periodic wrapping (a coordinate just below zero was wrapped to the box size,
+  which crashed the scorer) and adds the uv project files. It gives the same outputs as 1.0.1 away from that
+  edge case, including the truth of Singh et al. (in preparation). See [CHANGELOG.md](CHANGELOG.md).
 * **1.0.1** builds the skeleton used in Singh et al. (in preparation): run on that paper's void
   geometry it gives its truth (5936 filaments, 2968 nodes). Install it with
   `pip install git+https://github.com/ansingh16/gtweb.git@v1.0.1`.
@@ -195,7 +198,7 @@ determinism, the geometry of the truth, that the mass sits on the web, and the s
   In smaller boxes (where cells are large compared with the box) 1.0.0 could also create a few
   spurious edges near the box faces and drop long edges.
 
-Use 1.0.1 or later for new work.
+Use 1.0.2 for new work.
 
 ## Citation
 
