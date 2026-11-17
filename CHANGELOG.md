@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.0.2 (2026-11-17)
 
 **Periodic wrapping made exact** (new `gtweb/periodic.py`). Coordinates were wrapped with `x % box`, which
 returns `box` itself for a tiny negative x (`-1e-17 % 100.0 == 100.0`; in float32 for x down to about -4e-6).
@@ -11,7 +11,11 @@ deposits were already correct (their cell indices are wrapped) and are unchanged
 
 **Effect.** None away from the edge case: a mock generated before and after (40 Mpc/h, 48³, seed 0) is
 bit-identical in all 518 output arrays, so the 1.0.1 truth and particle fields are unchanged.
-`tests/test_periodic.py` covers the helper, the scorer, the velocity field and the CIC.
+`tests/test_periodic.py` covers the helper, the scorer, the velocity field and the CIC;
+`tests/test_groundtruth.py` covers `spine_overdensity`.
+
+Also: the repository is a uv project (`uv.lock`, `.python-version` 3.12, a `dev` dependency group with pytest):
+`uv sync` then `uv run pytest`. The pip install instructions are unchanged.
 
 ## 1.0.1 (2026-10-22)
 
