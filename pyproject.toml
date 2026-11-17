@@ -26,6 +26,10 @@ test = ["pytest"]
 [project.urls]
 Homepage = "https://github.com/ansingh16/gtweb"
 
+# uv: `uv sync` installs gtweb (editable) + this dev group; add `--all-extras` for numba and the notebooks.
+[dependency-groups]
+dev = ["pytest>=7"]
+
 [tool.setuptools]
 packages = ["gtweb"]
 

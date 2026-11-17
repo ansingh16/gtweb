@@ -37,6 +37,22 @@ pip install -e ".[notebooks,test]"
 Requires pip ≥ 21.3 (for `pyproject.toml` installs). Only `numpy` and `scipy` are required. `matplotlib` is used by the notebooks. `numba` is optional
 and speeds up one binning step.
 
+### With uv
+
+The repository ships a [uv](https://docs.astral.sh/uv/) project: `uv.lock` pins every dependency and
+`.python-version` pins Python 3.12, which uv downloads if it is missing.
+
+```bash
+git clone https://github.com/ansingh16/gtweb.git
+cd gtweb
+uv sync                    # creates .venv with gtweb (editable), numpy, scipy and pytest
+uv run pytest              # run the tests
+uv sync --all-extras       # add numba and the notebook stack
+uv run jupyter lab         # open the notebooks
+```
+
+To use gtweb from your own uv project: `uv add git+https://github.com/ansingh16/gtweb.git`.
+
 ## Quick start
 
 ```python
