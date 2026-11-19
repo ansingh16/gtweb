@@ -1,5 +1,23 @@
 # Changelog
 
+## 1.2.0 (2026-11-19)
+
+**Mocks from N-body initial conditions** (new `ic.psi1_from_gadget` and `ic.read_gadget`, also exported as
+`gtweb.psi1_from_gadget` and `gtweb.read_gadget`). `generate_from_ic` reads the Zel'dovich displacement Ψ₁ on the
+Lagrangian grid; these functions build it from GADGET-1 initial-condition files (format 1, one particle species on
+a cubic grid). Each particle is assigned to the Lagrangian cell that contains it, a cell holds the mean
+displacement of its particles, the few empty cells take the Gaussian-weighted (one-cell) mean of their filled
+neighbours, and the result is scaled to z = 0 by the linear growth factor. The files are checked for consistency
+(number of files, particle totals, a common scale factor, box and `num_files`; no file given twice) and a
+`ValueError` names any mismatch. It also raises if the box comes out below 1 Mpc/h (a wrong `length_unit`) or if more
+than 5 per cent of the cells receive no particle (displacements larger than half a cell). Big-endian, format-2 and
+double-precision files are rejected rather than misread.
+
+**Effect.** Nothing existing changes: mocks and scores are identical to 1.1.0. On the 384³ initial conditions of
+the simulation of Singh et al. (in preparation), written by Ginnungagap at z = 120, `psi1_from_gadget(...,
+omega_m=0.307)` reproduces that paper's Ψ₁ exactly (all 3 × 384³ values identical in float32).
+`tests/test_gadget_ic.py` checks the conventions with known answers.
+
 ## 1.1.0 (2026-11-17)
 
 **Filament contrast measured at the right place and along the whole spine** (`groundtruth.spine_overdensity`, the

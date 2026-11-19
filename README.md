@@ -74,6 +74,25 @@ gtweb.score_per_filament(my_skeleton, truth["spines"], truth["box_size"], tol=1.
 # -> the recovered fraction of every true filament
 ```
 
+### From N-body initial conditions
+
+To grow the mock from the initial conditions of an N-body run instead of a random field, convert
+its GADGET-1 initial-condition files (format 1, one particle species on a cubic Lagrangian grid) into
+the Zel'dovich displacement Ψ₁ and pass that to `generate_from_ic`:
+
+```python
+psi = gtweb.psi1_from_gadget("ics/", out="psi1.npz", omega_m=0.307)   # ics/GADGET.0 ... GADGET.63
+meta = gtweb.generate_from_ic(None, "my_ic_mock", psi1_path="psi1.npz")
+```
+
+`psi1_from_gadget` assigns each particle to the Lagrangian cell that contains it, so the initial
+displacements must be under half a cell, as they are at the starting redshift of a simulation. It
+scales the displacement to z = 0 with the linear growth factor of Ω_m (the header's Omega0 unless you
+give `omega_m`). The files are assumed to be in kpc/h (`length_unit=1e-3`); pass `length_unit=1.0` for
+Mpc/h. For the 384³ initial conditions of the paper's simulation it takes about a minute and 7.5 GB of
+memory, and with `omega_m=0.307` (gtweb's cosmology) it reproduces the paper's Ψ₁ exactly. The mock
+grown from it is statistically equivalent to the paper's, not identical to it.
+
 ## Notebooks
 
 | notebook | what it shows |
@@ -186,10 +205,16 @@ pytest tests
 ```
 
 The tests generate a small mock (40 Mpc/h, 48³ particles) and check the initial power spectrum,
-determinism, the geometry of the truth, that the mass sits on the web, and the scorer.
+determinism, the geometry of the truth, that the mass sits on the web, and the scorer. `tests/test_gadget_ic.py`
+checks the GADGET reader and `psi1_from_gadget` on small files with known displacements; with
+`GTWEB_TEST_IC_DIR` (the paper's initial-condition files) and `GTWEB_TEST_PSI1` (the paper's Ψ₁) set, it also checks
+that the paper's Ψ₁ is reproduced exactly.
 
 ## Versions
 
+* **1.2.0** adds `psi1_from_gadget` and `read_gadget`, which turn GADGET-1 initial-condition files into the Ψ₁
+  that `generate_from_ic` reads (see [From N-body initial conditions](#from-n-body-initial-conditions)). Nothing
+  else changes: mocks and scores are identical to 1.1.0.
 * **1.1.0** corrects the filament contrast dial (`filament_target_contrast`): the density is read at the right
   place (it was half a grid cell off) and averaged along the whole spine line (it was averaged over the six stored
   vertices). The network and particles are unchanged. On the mock of Singh et al. (in preparation) it gives that
@@ -208,7 +233,7 @@ determinism, the geometry of the truth, that the mass sits on the web, and the s
   In smaller boxes (where cells are large compared with the box) 1.0.0 could also create a few
   spurious edges near the box faces and drop long edges.
 
-Use 1.1.0 for new work.
+Use 1.2.0 for new work.
 
 ## Citation
 

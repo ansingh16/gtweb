@@ -27,14 +27,14 @@ from .score import score_finder, score_per_filament
 from .velocity import linear_velocity_field, sample_velocity
 from .lpt import (load_psi1, truncated_2lpt, lpt_positions, lpt_velocity_field,
                   linear_density_from_psi1)
-from .ic import gaussian_psi1, za_positions
+from .ic import gaussian_psi1, za_positions, read_gadget, psi1_from_gadget
 from .particles import halo_catalogue
 from .generate import generate_mock, generate_from_ic
 
-__version__ = "1.1.0"
+__version__ = "1.2.0"
 
 __all__ = [
-    "generate_mock", "generate_from_ic", "gaussian_psi1", "za_positions",
+    "generate_mock", "generate_from_ic", "gaussian_psi1", "za_positions", "read_gadget", "psi1_from_gadget",
     "load_ground_truth", "load_nodes", "load_particles", "load_halos",
     "write_ground_truth", "write_disperse_pos", "read_disperse_skeleton",
     "read_disperse_critical_points",
