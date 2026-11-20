@@ -93,6 +93,12 @@ Mpc/h. For the 384³ initial conditions of the paper's simulation it takes about
 memory, and with `omega_m=0.307` (gtweb's cosmology) it reproduces the paper's Ψ₁ exactly. The mock
 grown from it is statistically equivalent to the paper's, not identical to it.
 
+The paper's initial conditions are public at <https://the300.ft.uam.es/MDPL2_100Mpc/ICS/>: 64
+GADGET-1 files (`GADGET.0` to `GADGET.63`, 1.5 GB in all) holding 384³ particles in a 100 Mpc/h box
+at z = 120, with the MDPL2 cosmology and mass resolution, written by Ginnungagap (Pilipenko et al.
+2026, Astronomy and Computing 55, 101082). Put them in one folder and pass that folder to
+`psi1_from_gadget`, as above.
+
 ## Notebooks
 
 | notebook | what it shows |
